@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Studio</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0b0e14;
+            --sidebar-bg: #11141b;
+            --card-bg: #1e222b;
+            --primary: #5c67ff;
+            --primary-glow: rgba(92, 103, 255, 0.3);
+            --text-main: #e2e8f0;
+            --text-dim: #94a3b8;
+            --border: rgba(255, 255, 255, 0.08);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg-dark); color: var(--text-main); overflow: hidden; height: 100vh; display: flex; }
+
+        .sidebar { width: 280px; background: var(--sidebar-bg); border-right: 1px solid var(--border); display: flex; flex-direction: column; }
+        .new-chat-btn { margin: 15px; padding: 12px; border-radius: 12px; border: 1px solid var(--border); background: rgba(255,255,255,0.03); color: white; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 10px; transition: 0.2s; }
+        .new-chat-btn:hover { background: rgba(255,255,255,0.08); border-color: var(--primary); }
+
+        .history-list { flex: 1; overflow-y: auto; padding: 0 10px; }
+        .history-item { 
+            padding: 12px 15px; border-radius: 8px; margin-bottom: 5px; cursor: pointer; font-size: 0.85rem; color: var(--text-dim);
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: 0.2s; position: relative;
+        }
+        .history-item:hover { background: rgba(255,255,255,0.05); color: white; }
+        .history-item.active { background: rgba(92, 103, 255, 0.1); color: var(--primary); border-left: 3px solid var(--primary); }
+
+        .main-container { flex: 1; display: flex; flex-direction: column; }
+        .header { padding: 15px 30px; background: rgba(11, 14, 20, 0.8); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .header h1 { font-family: 'Outfit', sans-serif; font-size: 1.2rem; font-weight: 700; background: linear-gradient(135deg, #fff 0%, #888 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+
+        .chat-window { flex: 1; overflow-y: auto; padding: 40px 10%; scroll-behavior: smooth; }
+        .message { margin-bottom: 30px; max-width: 850px; margin-left: auto; margin-right: auto; display: flex; gap: 20px; animation: slideUp 0.3s ease-out; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .avatar { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0; font-size: 0.8rem; }
+        .avatar.ai { background: var(--primary); box-shadow: 0 0 15px var(--primary-glow); }
+        .avatar.user { background: #475569; }
+
+        .content { flex: 1; line-height: 1.7; font-size: 1.05rem; }
+        .content p { margin-bottom: 1rem; }
+        .content pre { background: #0d1117; padding: 16px; border-radius: 12px; overflow-x: auto; border: 1px solid var(--border); margin: 15px 0; }
+        .content code { font-family: monospace; font-size: 0.9em; background: rgba(255,255,255,0.05); padding: 2px 5px; border-radius: 4px; }
+
+        .input-container { padding: 20px 10%; background: linear-gradient(0deg, var(--bg-dark) 50%, transparent); }
+        .input-wrapper { max-width: 850px; margin: 0 auto; background: var(--card-bg); border: 1px solid var(--border); border-radius: 18px; padding: 8px 12px; display: flex; align-items: flex-end; }
+        textarea { flex: 1; background: transparent; border: none; color: white; padding: 10px; font-size: 1rem; resize: none; max-height: 150px; outline: none; }
+        .send-btn { background: var(--primary); color: white; border: none; width: 38px; height: 38px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .send-btn:hover { transform: scale(1.05); }
+
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <button class="new-chat-btn" onclick="startNewChat()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            New Chat
+        </button>
+        <div class="history-list" id="history-list"></div>
+    </div>
+
+    <div class="main-container">
+        <div class="header">
+            <h1>AI STUDIO</h1>
+            <div style="font-size:0.8rem; color:var(--text-dim);">Google Gemini 2.0</div>
+        </div>
+
+        <div class="chat-window" id="chat-window"></div>
+
+        <div class="input-container">
+            <div class="input-wrapper">
+                <textarea id="user-input" rows="1" placeholder="Type your message..." oninput="autoResize(this)"></textarea>
+                <button class="send-btn" onclick="sendMessage()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentChatId = null;
+        let chatHistory = [];
+        const chatWindow = document.getElementById('chat-window');
+        const userInput = document.getElementById('user-input');
+
+        function autoResize(el) {
+            el.style.height = 'auto';
+            el.style.height = el.scrollHeight + 'px';
+        }
+
+        async function startNewChat() {
+            currentChatId = null;
+            chatHistory = [];
+            chatWindow.innerHTML = '<div class="message"><div class="avatar ai">AI</div><div class="content"><p>How can I assist you with your studies or projects today?</p></div></div>';
+            userInput.value = '';
+            document.querySelectorAll('.history-item').forEach(i => i.classList.remove('active'));
+            loadHistory();
+        }
+
+        async function sendMessage() {
+            const text = userInput.value.trim();
+            if (!text) return;
+
+            addMessage('user', text);
+            userInput.value = '';
+            userInput.style.height = '42px';
+
+            chatHistory.push({ role: 'user', content: text });
+
+            const aiMsgDiv = addMessage('ai', '<span style="color:var(--text-dim)">AI is generating...</span>');
+            const contentDiv = aiMsgDiv.querySelector('.content');
+
+            try {
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ messages: chatHistory, chat_id: currentChatId })
+                });
+                const data = await response.json();
+                
+                currentChatId = data.chat_id;
+                const aiResponse = data.response;
+                chatHistory.push({ role: 'assistant', content: aiResponse });
+
+                contentDiv.innerHTML = marked.parse(aiResponse);
+                contentDiv.querySelectorAll('pre code').forEach(el => hljs.highlightElement(el));
+                loadHistory();
+            } catch (e) {
+                contentDiv.innerText = "Error connecting to AI.";
+            } finally {
+                chatWindow.scrollTo(0, chatWindow.scrollHeight);
+            }
+        }
+
+        function addMessage(role, html) {
+            const div = document.createElement('div');
+            div.className = 'message';
+            div.innerHTML = `<div class="avatar ${role}">${role === 'ai' ? 'AI' : 'U'}</div><div class="content">${role === 'user' ? `<p>${html}</p>` : html}</div>`;
+            chatWindow.appendChild(div);
+            chatWindow.scrollTo(0, chatWindow.scrollHeight);
+            return div;
+        }
+
+        async function loadHistory() {
+            const res = await fetch('/get_history');
+            const history = await res.json();
+            const list = document.getElementById('history-list');
+            list.innerHTML = '';
+            history.forEach(chat => {
+                const item = document.createElement('div');
+                item.className = 'history-item' + (chat.id === currentChatId ? ' active' : '');
+                item.innerText = chat.title;
+                item.onclick = () => resumeChat(chat);
+                list.appendChild(item);
+            });
+        }
+
+        function resumeChat(chat) {
+            currentChatId = chat.id;
+            chatHistory = chat.messages;
+            chatWindow.innerHTML = '';
+            chatHistory.forEach(m => {
+                const role = m.role === 'assistant' ? 'ai' : 'user';
+                const msg = role === 'ai' ? marked.parse(m.content) : m.content;
+                addMessage(role, msg);
+            });
+            updateHistoryActiveState(chat.id);
+        }
+
+        function updateHistoryActiveState(id) {
+             document.querySelectorAll('.history-item').forEach(i => {
+                // Since titles might not be unique, we should check something more robust if possible, 
+                // but for now, let's just reload history to update classes
+            });
+            loadHistory();
+        }
+
+        userInput.addEventListener('keypress', (e) => { if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } });
+        
+        startNewChat();
+    </script>
+</body>
+</html>
