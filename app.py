@@ -2,10 +2,15 @@ import os
 import json
 from flask import Flask, request, jsonify, render_template
 import openai
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 # ---- Configuration ----
-OPENROUTER_API_KEY = "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"
-MODEL_NAME = "google/gemini-2.0-flash-001"
+# Retrieve API key from environment for security
+OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY", "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")
+MODEL_NAME = os.environ.get("MODEL_NAME", "google/gemini-2.0-flash-001")
 
 client = openai.OpenAI(
     base_url="https://openrouter.ai/api/v1",
