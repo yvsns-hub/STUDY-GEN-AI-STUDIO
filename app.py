@@ -21,20 +21,30 @@ if not OPENROUTER_API_KEY:
 if not firebase_admin._apps:
     service_account_info = os.environ.get("FIREBASE_SERVICE_ACCOUNT")
     if service_account_info:
-        # Use service account from environment variable (for Render/Production)
-        info = json.loads(service_account_info)
-        cred = credentials.Certificate(info)
-        firebase_admin.initialize_app(cred)
+        try:
+            # Use service account from environment variable (for Render/Production)
+            info = json.loads(service_account_info)
+            cred = credentials.Certificate(info)
+            firebase_admin.initialize_app(cred)
+            print("Firebase Admin initialized with Cloud Certificate.")
+        except Exception as e:
+            print(f"FIREBASE INIT ERROR: Could not parse JSON key. Error: {str(e)}")
     else:
         # Fallback to default credentials (for local testing/Google Cloud)
         try:
             cred = credentials.ApplicationDefault()
             firebase_admin.initialize_app(cred)
-        except:
-            print("No Firebase credentials found. Firestore will not work!")
+            print("Firebase Admin initialized with ApplicationDefault.")
+        except Exception as e:
+            print(f"FIREBASE INIT ERROR: No credentials found. Firestore will be disabled. Error: {str(e)}")
 
-db = firestore.client()
-CHATS_COLLECTION = "user_chats"
+try:
+    db = firestore.client()
+    CHATS_COLLECTION = "user_chats"
+    print("Firestore client connected successfully.")
+except Exception as e:
+    print(f"FIRESTORE ERROR: Could not connect to database. Error: {str(e)}")
+    db = None
 
 client = openai.OpenAI(
     base_url="https://openrouter.ai/api/v1",
@@ -47,42 +57,48 @@ app = Flask(__name__)
 
 def load_history():
     """Retrieve chat history from Firestore."""
+    if not db:
+        return []
     try:
         docs = db.collection(CHATS_COLLECTION).order_by("timestamp", direction=firestore.Query.DESCENDING).limit(100).stream()
         history = []
         for doc in docs:
             chat_data = doc.to_dict()
             chat_data['id'] = doc.id
-            # Remove timestamp for clean JSON return
             if 'timestamp' in chat_data:
                 del chat_data['timestamp']
             history.append(chat_data)
         return history
     except Exception as e:
-        print(f"Firestore Error: {str(e)}")
+        print(f"LOAD_HISTORY ERROR: {str(e)}")
         return []
 
 def save_chat(messages, chat_id=None):
     """Save/Update chat in Firestore."""
-    user_msgs = [m for m in messages if m['role'] == 'user']
-    title = "New Conversation"
-    if user_msgs:
-        title = user_msgs[0]['content'][:35] + ("..." if len(user_msgs[0]['content']) > 35 else "")
+    if not db:
+        return os.urandom(4).hex()
+        
+    try:
+        user_msgs = [m for m in messages if m['role'] == 'user']
+        title = "New Conversation"
+        if user_msgs:
+            title = user_msgs[0]['content'][:35] + ("..." if len(user_msgs[0]['content']) > 35 else "")
 
-    chat_data = {
-        "title": title,
-        "messages": messages,
-        "timestamp": firestore.SERVER_TIMESTAMP
-    }
+        chat_data = {
+            "title": title,
+            "messages": messages,
+            "timestamp": firestore.SERVER_TIMESTAMP
+        }
 
-    if chat_id:
-        # Update existing
-        db.collection(CHATS_COLLECTION).document(chat_id).set(chat_data)
-        return chat_id
-    else:
-        # Create new
-        doc_ref = db.collection(CHATS_COLLECTION).add(chat_data)
-        return doc_ref[1].id
+        if chat_id:
+            db.collection(CHATS_COLLECTION).document(chat_id).set(chat_data)
+            return chat_id
+        else:
+            doc_ref = db.collection(CHATS_COLLECTION).add(chat_data)
+            return doc_ref[1].id
+    except Exception as e:
+        print(f"SAVE_CHAT ERROR: {str(e)}")
+        return os.urandom(4).hex()
 
 # ---- Routes ----
 
@@ -97,6 +113,9 @@ def chat():
     messages = data.get("messages", [])
     chat_id = data.get("chat_id")
     
+    if not OPENROUTER_API_KEY:
+        return jsonify({"error": "AI API Key missing on server"}), 500
+
     try:
         response = client.chat.completions.create(
             model=MODEL_NAME,
@@ -105,12 +124,13 @@ def chat():
         ai_response = response.choices[0].message.content
         messages.append({"role": "assistant", "content": ai_response})
         
-        # Save/Update history and get the (possibly new) chat_id
+        # Save/Update history in Firestore
         new_chat_id = save_chat(messages, chat_id)
         
         return jsonify({"response": ai_response, "chat_id": new_chat_id})
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        print(f"CHAT ROUTE CRASH: {str(e)}")
+        return jsonify({"error": f"Internal Error: {str(e)}"}), 500
 
 @app.route('/get_history')
 def get_history():
