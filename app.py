@@ -19,8 +19,19 @@ if not OPENROUTER_API_KEY:
 
 # Initialize Firebase Admin
 if not firebase_admin._apps:
-    cred = credentials.ApplicationDefault() # For local, use GOOGLE_APPLICATION_CREDENTIALS env var
-    firebase_admin.initialize_app(cred)
+    service_account_info = os.environ.get("FIREBASE_SERVICE_ACCOUNT")
+    if service_account_info:
+        # Use service account from environment variable (for Render/Production)
+        info = json.loads(service_account_info)
+        cred = credentials.Certificate(info)
+        firebase_admin.initialize_app(cred)
+    else:
+        # Fallback to default credentials (for local testing/Google Cloud)
+        try:
+            cred = credentials.ApplicationDefault()
+            firebase_admin.initialize_app(cred)
+        except:
+            print("No Firebase credentials found. Firestore will not work!")
 
 db = firestore.client()
 CHATS_COLLECTION = "user_chats"
