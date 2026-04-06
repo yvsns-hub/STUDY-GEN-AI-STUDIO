@@ -1,4 +1,6 @@
 flask
 openai
+firebase-admin
+google-cloud-firestore
 gunicorn
 python-dotenv

@@ -34,3 +34,12 @@ history.html
 input.html
 login.html
 output.html
+
+# Docker 
+.docker/
+docker-compose.override.yml
+
+# Firebase
+.firebase/
+firebaserc
+scripts/

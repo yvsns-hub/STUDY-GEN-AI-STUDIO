@@ -1,0 +1,19 @@
+{
+  "hosting": {
+    "public": "templates",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "run": {
+          "serviceId": "study-gen-ai",
+          "region": "us-central1"
+        }
+      }
+    ]
+  }
+}

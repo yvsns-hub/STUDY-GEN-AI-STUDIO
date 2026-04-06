@@ -3,14 +3,23 @@ import json
 from flask import Flask, request, jsonify, render_template
 import openai
 from dotenv import load_dotenv
+import firebase_admin
+from firebase_admin import credentials, firestore
 
 # Load environment variables
 load_dotenv()
 
 # ---- Configuration ----
-# Retrieve API key from environment for security
 OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY", "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")
 MODEL_NAME = os.environ.get("MODEL_NAME", "google/gemini-2.0-flash-001")
+
+# Initialize Firebase Admin
+if not firebase_admin._apps:
+    cred = credentials.ApplicationDefault() # For local, use GOOGLE_APPLICATION_CREDENTIALS env var
+    firebase_admin.initialize_app(cred)
+
+db = firestore.client()
+CHATS_COLLECTION = "user_chats"
 
 client = openai.OpenAI(
     base_url="https://openrouter.ai/api/v1",
@@ -18,46 +27,47 @@ client = openai.OpenAI(
 )
 
 app = Flask(__name__)
-HISTORY_FILE = "chat_history.json"
 
-# ---- Utils ----
+# ---- Utils (Firestore Migration) ----
+
 def load_history():
-    if os.path.exists(HISTORY_FILE):
-        try:
-            with open(HISTORY_FILE, "r", encoding="utf-8") as f:
-                return json.load(f)
-        except:
-            return []
-    return []
+    """Retrieve chat history from Firestore."""
+    try:
+        docs = db.collection(CHATS_COLLECTION).order_by("timestamp", direction=firestore.Query.DESCENDING).limit(100).stream()
+        history = []
+        for doc in docs:
+            chat_data = doc.to_dict()
+            chat_data['id'] = doc.id
+            # Remove timestamp for clean JSON return
+            if 'timestamp' in chat_data:
+                del chat_data['timestamp']
+            history.append(chat_data)
+        return history
+    except Exception as e:
+        print(f"Firestore Error: {str(e)}")
+        return []
 
 def save_chat(messages, chat_id=None):
-    history = load_history()
-    
-    # Extract title from the first user message
+    """Save/Update chat in Firestore."""
     user_msgs = [m for m in messages if m['role'] == 'user']
     title = "New Conversation"
     if user_msgs:
         title = user_msgs[0]['content'][:35] + ("..." if len(user_msgs[0]['content']) > 35 else "")
 
-    if chat_id:
-        # Update existing chat
-        for chat in history:
-            if chat['id'] == chat_id:
-                chat['messages'] = messages
-                chat['title'] = title
-                break
-        else:
-            # If ID not found, treat as new
-            chat_id = os.urandom(4).hex()
-            history.insert(0, {"id": chat_id, "title": title, "messages": messages})
-    else:
-        # Create new chat
-        chat_id = os.urandom(4).hex()
-        history.insert(0, {"id": chat_id, "title": title, "messages": messages})
+    chat_data = {
+        "title": title,
+        "messages": messages,
+        "timestamp": firestore.SERVER_TIMESTAMP
+    }
 
-    with open(HISTORY_FILE, "w", encoding="utf-8") as f:
-        json.dump(history[:100], f, indent=4)
-    return chat_id
+    if chat_id:
+        # Update existing
+        db.collection(CHATS_COLLECTION).document(chat_id).set(chat_data)
+        return chat_id
+    else:
+        # Create new
+        doc_ref = db.collection(CHATS_COLLECTION).add(chat_data)
+        return doc_ref[1].id
 
 # ---- Routes ----
 
