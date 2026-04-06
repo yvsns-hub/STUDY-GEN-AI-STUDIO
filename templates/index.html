@@ -60,6 +60,23 @@
 
         ::-webkit-scrollbar { width: 5px; }
         ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+
+        /* Auth Styles */
+        .auth-container { display: flex; align-items: center; gap: 12px; }
+        .login-btn { 
+            background: var(--primary); color: white; border: none; padding: 8px 16px; border-radius: 8px; 
+            cursor: pointer; font-weight: 600; font-size: 0.85rem; transition: 0.2s; display: flex; align-items: center; gap: 8px;
+        }
+        .login-btn:hover { transform: translateY(-1px); opacity: 0.9; }
+        .user-profile { display: none; align-items: center; gap: 12px; cursor: pointer; position: relative; }
+        .user-name { font-size: 0.85rem; font-weight: 500; color: var(--text-main); }
+        .user-photo { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--border); }
+        .logout-btn { 
+            position: absolute; top: 100%; right: 0; margin-top: 8px; background: var(--card-bg); 
+            border: 1px solid var(--border); color: #ff5c5c; padding: 8px 15px; border-radius: 8px;
+            font-size: 0.8rem; white-space: nowrap; display: none; z-index: 100;
+        }
+        .user-profile:hover .logout-btn { display: block; }
     </style>
 </head>
 <body>
@@ -73,8 +90,22 @@
 
     <div class="main-container">
         <div class="header">
-            <h1>AI STUDIO</h1>
-            <div style="font-size:0.8rem; color:var(--text-dim);">Google Gemini 2.0</div>
+            <div class="header-left">
+                <h1>AI STUDIO</h1>
+                <div style="font-size:0.7rem; color:var(--text-dim);">Google Gemini 2.0</div>
+            </div>
+            
+            <div class="auth-container" id="auth-container">
+                <button class="login-btn" id="login-btn" onclick="login()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12.48 10.92v3.28h7.84c-.24 1.84-.908 3.152-1.928 4.176-1.288 1.288-3.312 2.696-7.392 2.696-6.392 0-11.456-5.184-11.456-11.576s5.064-11.576 11.456-11.576c3.456 0 6.032 1.368 7.84 3.152l2.312-2.312c-2.128-2.04-4.88-3.152-10.152-3.152-9.176 0-16.712 7.424-16.712 16.736s7.536 16.736 16.712 16.736c4.952 0 8.688-1.632 11.664-4.736 3.072-3.072 4.04-7.448 4.04-11.136 0-1.056-.08-2.056-.24-2.928h-15.464z"/></svg>
+                    Sign in with Google
+                </button>
+                <div class="user-profile" id="user-profile">
+                    <span class="user-name" id="user-name"></span>
+                    <img class="user-photo" id="user-photo" src="" alt="">
+                    <button class="logout-btn" onclick="logout()">Sign Out</button>
+                </div>
+            </div>
         </div>
 
         <div class="chat-window" id="chat-window"></div>
@@ -195,11 +226,9 @@
         // Import the functions you need from the SDKs you need
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
-        // TODO: Add SDKs for Firebase products that you want to use
-        // https://firebase.google.com/docs/web/setup#available-libraries
+        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
         // Your web app's Firebase configuration
-        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
         const firebaseConfig = {
             apiKey: "AIzaSyDT6NDa5i5Lqh20BMDo7KoMzb-iDiAZrKA",
             authDomain: "study-gen.firebaseapp.com",
@@ -212,8 +241,46 @@
 
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
-        const analytics = getAnalytics(app);
-        console.log("Firebase initialized successfully!");
+        const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
+
+        // Handle Login
+        window.login = async () => {
+            try {
+                await signInWithPopup(auth, provider);
+            } catch (error) {
+                console.error("Login failed:", error);
+                alert("Login failed. Please check your Firebase console settings.");
+            }
+        };
+
+        // Handle Logout
+        window.logout = async () => {
+            await signOut(auth);
+            location.reload();
+        };
+
+        // Track Auth State
+        onAuthStateChanged(auth, (user) => {
+            const loginBtn = document.getElementById('login-btn');
+            const userProfile = document.getElementById('user-profile');
+            const userName = document.getElementById('user-name');
+            const userPhoto = document.getElementById('user-photo');
+
+            if (user) {
+                loginBtn.style.display = 'none';
+                userProfile.style.display = 'flex';
+                userName.innerText = user.displayName;
+                userPhoto.src = user.photoURL;
+                console.log("User signed in:", user.displayName);
+            } else {
+                loginBtn.style.display = 'flex';
+                userProfile.style.display = 'none';
+                console.log("No user signed in");
+            }
+        });
+
+        console.log("Firebase Auth initialized successfully!");
     </script>
 </body>
 </html>
