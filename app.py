@@ -10,8 +10,12 @@ from firebase_admin import credentials, firestore
 load_dotenv()
 
 # ---- Configuration ----
-OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY", "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")
+# Retrieve API key from environment for security. Fallback to None if not set.
+OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY")
 MODEL_NAME = os.environ.get("MODEL_NAME", "google/gemini-2.0-flash-001")
+
+if not OPENROUTER_API_KEY:
+    print("WARNING: OPENROUTER_API_KEY is not set in environment!")
 
 # Initialize Firebase Admin
 if not firebase_admin._apps:
