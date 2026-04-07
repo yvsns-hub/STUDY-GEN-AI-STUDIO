@@ -11,15 +11,15 @@ load_dotenv()
 
 # ---- Configuration ----
 # Retrieve API key from environment for security. Fallback to None if not set.
-OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY")
-MODEL_NAME = os.environ.get("MODEL_NAME", "google/gemini-2.0-flash-001")
+OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY", "").strip()
+MODEL_NAME = os.environ.get("MODEL_NAME", "google/gemini-2.0-flash-001").strip()
 
 if not OPENROUTER_API_KEY:
     print("WARNING: OPENROUTER_API_KEY is not set in environment!")
 
 # Initialize Firebase Admin
 if not firebase_admin._apps:
-    service_account_info = os.environ.get("FIREBASE_SERVICE_ACCOUNT")
+    service_account_info = os.environ.get("FIREBASE_SERVICE_ACCOUNT", "").strip()
     if service_account_info:
         try:
             # Use service account from environment variable (for Render/Production)
