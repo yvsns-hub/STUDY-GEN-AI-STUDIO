@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Studio | Ultra Intelligent Workspace</title>
+    <title>AI Studio | Professional Workspace</title>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
@@ -19,171 +19,167 @@
             --text-main: #f8fafc;
             --text-dim: #94a3b8;
             --border: rgba(255, 255, 255, 0.08);
-            --sidebar-width: 280px;
+            --sidebar-width: 300px;
         }
 
-        [data-theme="light"] {
-            --bg-page: #f8fafc;
-            --bg-card: rgba(255, 255, 255, 0.8);
-            --bg-sidebar: #ffffff;
-            --text-main: #0f172a;
-            --text-dim: #64748b;
-            --border: rgba(15, 23, 42, 0.06);
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg-page); color: var(--text-main); height: 100vh; overflow: hidden; display: flex; transition: background 0.4s; }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; transition: background 0.4s, color 0.4s; }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg-page); color: var(--text-main); height: 100vh; overflow: hidden; display: flex; }
-
-        /* Auth/Login Overlay */
-        #auth-screen { position: fixed; inset: 0; background: var(--bg-page); z-index: 1000; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle at top right, rgba(99, 102, 241, 0.15), transparent 40%), radial-gradient(circle at bottom left, rgba(236, 72, 153, 0.1), transparent 40%); }
-        .auth-container { width: 900px; height: 600px; background: var(--bg-card); backdrop-filter: blur(20px); border: 1px solid var(--border); border-radius: 32px; display: flex; overflow: hidden; box-shadow: 0 40px 100px rgba(0,0,0,0.3); animation: slideIn 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
-        .auth-left { flex: 1.2; padding: 60px; display: flex; flex-direction: column; justify-content: center; background: rgba(0,0,0,0.1); }
+        /* Auth Screen */
+        #auth-screen { position: fixed; inset: 0; background: var(--bg-page); z-index: 2000; display: flex; align-items: center; justify-content: center; }
+        .auth-container { width: 900px; height: 600px; background: var(--bg-card); backdrop-filter: blur(40px); border: 1px solid var(--border); border-radius: 40px; display: flex; overflow: hidden; box-shadow: 0 40px 120px rgba(0,0,0,0.5); }
+        .auth-left { flex: 1.2; padding: 60px; display: flex; flex-direction: column; justify-content: center; background: rgba(255,255,255,0.02); }
         .auth-right { flex: 1; padding: 60px; display: flex; flex-direction: column; justify-content: center; background: var(--bg-card); }
-        .auth-logo { font-family: 'Outfit', sans-serif; font-size: 2rem; font-weight: 700; margin-bottom: 20px; background: linear-gradient(to right, var(--primary), var(--secondary)); -webkit-background-clip: text; background-clip: text; color: transparent; }
-        .auth-title { font-size: 2.5rem; font-weight: 700; margin-bottom: 1.5rem; line-height: 1.1; }
-        .auth-tabs { display: flex; gap: 20px; margin-bottom: 30px; border-bottom: 1px solid var(--border); }
-        .auth-tab { cursor: pointer; padding-bottom: 10px; color: var(--text-dim); font-weight: 600; font-size: 0.9rem; position: relative; }
+        .auth-logo { font-family: 'Outfit', sans-serif; font-size: 2.2rem; font-weight: 700; margin-bottom: 20px; background: linear-gradient(to right, var(--primary), var(--secondary)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        .auth-tabs { display: flex; gap: 24px; margin-bottom: 30px; border-bottom: 1px solid var(--border); }
+        .auth-tab { cursor: pointer; padding-bottom: 12px; color: var(--text-dim); font-weight: 600; font-size: 0.9rem; position: relative; }
         .auth-tab.active { color: var(--text-main); }
         .auth-tab.active::after { content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 2px; background: var(--primary); }
         .input-group { margin-bottom: 20px; }
-        .input-group label { display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-dim); margin-bottom: 8px; }
-        .input-group input { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--border); padding: 14px 18px; border-radius: 14px; color: var(--text-main); font-size: 1rem; outline: none; transition: 0.2s; }
-        .primary-btn { background: var(--primary); color: white; border: none; padding: 16px; border-radius: 14px; font-weight: 700; cursor: pointer; width: 100%; font-size: 1rem; transition: 0.3s; margin-bottom: 20px; box-shadow: 0 8px 20px var(--primary-glow); }
-        .google-login-btn { background: white; color: #334155; border: 1px solid #e2e8f0; padding: 14px; border-radius: 14px; font-weight: 600; cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: center; gap: 12px; }
+        .input-group label { display: block; font-size: 0.75rem; font-weight: 700; color: var(--text-dim); margin-bottom: 8px; text-transform: uppercase; }
+        .input-group input { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--border); padding: 14px 18px; border-radius: 16px; color: var(--text-main); font-size: 1rem; outline: none; transition: 0.2s; }
+        .input-group input:focus { border-color: var(--primary); background: rgba(255,255,255,0.08); }
+        .primary-btn { background: var(--primary); color: white; border: none; padding: 16px; border-radius: 16px; font-weight: 700; cursor: pointer; width: 100%; font-size: 1rem; transition: 0.3s; margin-bottom: 24px; box-shadow: 0 10px 25px var(--primary-glow); }
+        .google-login-btn { background: white; color: #1e293b; border: 1px solid #e2e8f0; padding: 14px; border-radius: 16px; font-weight: 700; cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: center; gap: 12px; font-size: 0.95rem; }
 
-        /* Sidebar Glassmorphism */
-        .sidebar { width: var(--sidebar-width); background: var(--bg-sidebar); border-right: 1px solid var(--border); display: flex; flex-direction: column; z-index: 100; overflow: hidden; }
-        .sidebar-scroll { flex: 1; overflow-y: auto; padding: 10px 0; }
-        .nav-item { padding: 12px 18px; margin: 4px 12px; border-radius: 14px; cursor: pointer; color: var(--text-dim); font-size: 0.9rem; font-weight: 600; display: flex; align-items: center; gap: 12px; transition: 0.2s; }
+        /* Sidebar */
+        .sidebar { width: var(--sidebar-width); background: var(--bg-sidebar); border-right: 1px solid var(--border); display: flex; flex-direction: column; z-index: 100; }
+        .sidebar-scroll { flex: 1; overflow-y: auto; padding: 20px 10px; }
+        .nav-item { padding: 12px 20px; margin: 4px 10px; border-radius: 14px; cursor: pointer; color: var(--text-dim); font-size: 0.9rem; font-weight: 600; display: flex; align-items: center; gap: 12px; transition: 0.2s; }
         .nav-item:hover, .nav-item.active { background: rgba(99, 102, 241, 0.1); color: var(--primary); }
         
-        .history-section { border-top: 1px solid var(--border); margin-top: 20px; padding-top: 20px; }
-        .history-header { font-size: 0.7rem; font-weight: 800; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; padding: 0 24px 10px; }
-        .history-item { padding: 10px 24px; font-size: 0.85rem; color: var(--text-dim); cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .history-item:hover { color: var(--text-main); background: rgba(255,255,255,0.03); }
+        .history-section { border-top: 1px solid var(--border); margin-top: 25px; padding: 25px 10px 0; }
+        .history-item { 
+            padding: 10px 20px; border-radius: 12px; font-size: 0.85rem; color: var(--text-dim); cursor: pointer; 
+            display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;
+        }
+        .history-item:hover { background: rgba(255,255,255,0.03); color: var(--text-main); }
+        .history-item.active { background: rgba(99, 102, 241, 0.08); color: var(--primary); }
+        .delete-icon { opacity: 0; padding: 4px; border-radius: 6px; transition: 0.2s; color: #ef4444; }
+        .history-item:hover .delete-icon { opacity: 1; }
+        .delete-icon:hover { background: rgba(239, 68, 68, 0.15); }
 
-        /* Main Workspace */
+        /* Workspace & Chat */
         .workspace { flex: 1; display: flex; flex-direction: column; position: relative; background: var(--bg-page); }
-        .page-content { display: none; width: 100%; height: 100%; overflow-y: auto; flex-direction: column; padding: 60px 40px; }
+        .page-content { display: none; width: 100%; height: 100%; overflow-y: auto; flex-direction: column; align-items: center; padding: 60px 40px; }
         .page-content.active { display: flex; }
 
-        /* Chat Layout - Ultra Modern Dialogue */
         #chat-page { padding: 0; }
-        .chat-scroller { flex: 1; overflow-y: auto; padding: 40px 20px 140px; }
-        .chat-container { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; gap: 30px; }
+        .chat-scroller { flex: 1; overflow-y: auto; padding: 40px 5% 150px; width: 100%; display: flex; justify-content: center; }
+        .chat-container { width: 100%; max-width: 1000px; display: flex; flex-direction: column; gap: 32px; }
         
-        .message { display: flex; gap: 15px; max-width: 80%; animation: fadeInUp 0.4s ease-out; position: relative; }
-        @keyframes fadeInUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        /* Message Bubbles - Strict Right/Left Alignment */
+        .message { width: 100%; display: flex; flex-direction: column; animation: fadeInUp 0.5s ease-out; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Left/Right Alignment Logic */
-        .message.user { align-self: flex-end; flex-direction: row-reverse; }
-        .message.ai { align-self: flex-start; }
+        .message.user { align-items: flex-end; }
+        .message.ai { align-items: flex-start; }
 
         .bubble { 
-            padding: 16px 22px; border-radius: 20px; font-size: 1.05rem; line-height: 1.6; position: relative;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            max-width: 80%; padding: 18px 24px; border-radius: 24px; font-size: 1.05rem; line-height: 1.7; position: relative;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
         }
-        .message.user .bubble { 
-            background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white;
-            border-bottom-right-radius: 4px; border: 1px solid rgba(255,255,255,0.1);
-        }
-        .message.ai .bubble { 
-            background: var(--bg-card); color: var(--text-main); border: 1px solid var(--border);
-            border-bottom-left-radius: 4px; backdrop-filter: blur(10px);
-        }
+        .message.user .bubble { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; border-bottom-right-radius: 4px; border: 1px solid rgba(255,255,255,0.1); }
+        .message.ai .bubble { background: var(--bg-card); color: var(--text-main); border: 1px solid var(--border); border-bottom-left-radius: 4px; backdrop-filter: blur(20px); }
+        
+        .role-label { font-size: 0.7rem; font-weight: 800; color: var(--text-dim); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
 
-        .role-marker { font-size: 0.7rem; font-weight: 800; color: var(--text-dim); margin-bottom: 6px; }
-        .message.user .role-marker { text-align: right; }
-
-        .content pre { background: rgba(0,0,0,0.2); padding: 15px; border-radius: 12px; border: 1px solid var(--border); margin: 10px 0; overflow-x: auto; }
-        .content code { font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; }
-
-        /* Floating Input Area */
+        /* Input Bar */
         .input-bar { 
-            position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 850px;
-            background: var(--bg-card); backdrop-filter: blur(30px); border: 1px solid var(--border); border-radius: 24px;
-            padding: 10px 15px 10px 24px; display: flex; align-items: flex-end; gap: 15px; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 900px;
+            background: var(--bg-card); backdrop-filter: blur(40px); border: 1px solid var(--border); border-radius: 28px;
+            padding: 12px 12px 12px 24px; display: flex; align-items: flex-end; gap: 15px; box-shadow: 0 20px 60px rgba(0,0,0,0.5);
         }
-        textarea { flex: 1; border: none; background: transparent; color: var(--text-main); outline: none; font-size: 1rem; padding: 10px 0; resize: none; max-height: 200px; }
-        .send-button { background: var(--primary); color: white; border: none; width: 44px; height: 44px; border-radius: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; flex-shrink: 0; }
-        .send-button:hover { background: var(--secondary); transform: scale(1.05); }
+        textarea { flex: 1; border: none; background: transparent; color: var(--text-main); outline: none; font-size: 1.1rem; padding: 12px 0; resize: none; max-height: 200px; }
+        .send-btn { 
+            background: var(--primary); color: white; border: none; width: 48px; height: 48px; border-radius: 18px; 
+            cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; flex-shrink: 0;
+        }
+        .send-btn:hover { background: var(--secondary); transform: scale(1.05) rotate(-5deg); }
 
+        /* Settings Icon in Sidebar */
+        .sidebar-footer { padding: 20px; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+        .settings-btn { padding: 8px; border-radius: 10px; cursor: pointer; color: var(--text-dim); transition: 0.2s; }
+        .settings-btn:hover { background: rgba(255,255,255,0.05); color: var(--text-main); }
     </style>
 </head>
 <body data-theme="dark">
-    <!-- Auth Screen -->
+    <!-- Auth -->
     <div id="auth-screen">
         <div class="auth-container">
             <div class="auth-left">
                 <div class="auth-logo">AI STUDIO</div>
-                <h2 class="auth-title">Intelligence defined by you.</h2>
-                <p style="color:var(--text-dim); line-height:1.6; font-size:1.1rem;">A workspace tailored for deep thinking and real-time research. Sign in to begin.</p>
+                <h2 style="font-size:2.5rem; font-weight:700; margin-bottom:1.5rem; line-height:1.1;">Build the future, one byte at a time.</h2>
+                <p style="color:var(--text-dim); line-height:1.6; font-size:1.1rem;">Your professional workstation for research, coding, and brainstorming.</p>
             </div>
             <div class="auth-right">
                 <div class="auth-tabs">
-                    <div class="auth-tab active" id="tab-login" onclick="tab('login')">SIGN IN</div>
-                    <div class="auth-tab" id="tab-signup" onclick="tab('signup')">JOIN US</div>
+                    <div class="auth-tab active" id="tab-login" onclick="authTab('login')">LOGIN</div>
+                    <div class="auth-tab" id="tab-signup" onclick="authTab('signup')">SIGN UP</div>
                 </div>
-                <div id="auth-form">
-                    <div class="input-group"><label>EMAIL</label><input type="email" id="email" placeholder="you@workspace.com"></div>
-                    <div class="input-group"><label>PASSWORD</label><input type="password" id="password" placeholder="••••••••"></div>
-                    <button class="primary-btn" id="auth-submit-btn" onclick="handleAuth()">Sign In</button>
-                    <button class="google-login-btn" onclick="loginWithGoogle()">
-                        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/action/google.svg" width="18" alt="Google"> Sign in with Google
+                <div id="auth-box">
+                    <div class="input-group"><label>EMAIL</label><input type="email" id="u-email-val" placeholder="name@company.com"></div>
+                    <div class="input-group"><label>PASSWORD</label><input type="password" id="u-pass-val" placeholder="••••••••"></div>
+                    <button class="primary-btn" id="auth-btn" onclick="executeAuth()">Login to Workspace</button>
+                    <div style="display:flex; align-items:center; gap:10px; margin-bottom:24px; color:var(--text-dim); font-size:0.75rem;"><div style="flex:1; height:1px; background:var(--border);"></div>OR<div style="flex:1; height:1px; background:var(--border);"></div></div>
+                    <button class="google-login-btn" onclick="googleAuth()">
+                        <img src="https://lh3.googleusercontent.com/COxitU7VnW6x8R85Y6B7V2Y3M9V5b5Z8l_Y6B2D1B6z4R6v_r1l-v5B5Ld7j_x_BvBv-BA" width="20" id="google-logo" alt="" onerror="this.src='https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png'; this.width=20;">
+                        Sign in with Google
                     </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Layout -->
+    <!-- Sidebar -->
     <div class="sidebar">
         <div style="padding: 30px 24px; font-family:'Outfit',sans-serif; font-weight:700; font-size:1.4rem;">AI STUDIO</div>
         <div class="sidebar-scroll">
-            <div class="nav-item active" onclick="show('home')">Home</div>
-            <div class="nav-item" onclick="show('chat')">New Conversation</div>
-            <div class="nav-item" onclick="show('profile')">Account Settings</div>
-            
+            <div class="nav-item active" onclick="nav('home')">Dashboard</div>
+            <div class="nav-item" onclick="nav('chat')">New Conversation</div>
+            <div class="nav-item" onclick="nav('profile')">Profile</div>
             <div class="history-section">
-                <div class="history-header">Previous Chats</div>
-                <div id="sidebar-history"></div>
+                <div style="font-size:0.7rem; font-weight:800; color:var(--text-dim); letter-spacing:1px; margin:0 24px 12px; text-transform:uppercase;">Conversations</div>
+                <div id="history-box"></div>
             </div>
         </div>
-        <div style="padding: 20px; border-top: 1px solid var(--border);">
-            <div class="nav-item" onclick="logout()" style="margin:0">Log out</div>
+        <div class="sidebar-footer">
+            <div class="settings-btn" title="Settings">⚙️</div>
+            <div class="nav-item" style="margin:0; padding:8px 12px;" onclick="logOff()">Logout</div>
         </div>
     </div>
 
+    <!-- Main Workspace -->
     <div class="workspace">
         <div id="home-page" class="page-content active" style="justify-content:center; text-align:center;">
-            <h1 id="welcome-text" style="font-size:3.5rem; font-family:'Outfit',sans-serif; margin-bottom:15px;">Welcome back.</h1>
-            <p style="color:var(--text-dim); font-size:1.2rem; max-width:600px; margin-bottom:40px;">Ready to start something new?</p>
-            <button class="primary-btn" style="width:220px" onclick="show('chat')">Start Researching</button>
+            <h1 id="greet" style="font-size:3.5rem; font-family:'Outfit',sans-serif; margin-bottom:15px;">Welcome back.</h1>
+            <p style="color:var(--text-dim); font-size:1.1rem; margin-bottom:40px;">What's on your mind today?</p>
+            <button class="primary-btn" style="width:240px" onclick="nav('chat')">Start New Chat</button>
         </div>
 
         <div id="chat-page" class="page-content">
-            <div class="chat-scroller" id="scroller">
-                <div class="chat-container" id="chat-box"></div>
+            <div class="chat-scroller" id="scroll-box">
+                <div class="chat-container" id="chat-feed"></div>
             </div>
             <div class="input-bar">
-                <textarea id="msg-input" rows="1" placeholder="Type for AI response..." oninput="autoExpand(this)"></textarea>
-                <button class="send-button" onclick="send()">↑</button>
+                <textarea id="msg-input" rows="1" placeholder="Describe your request..." oninput="expand(this)"></textarea>
+                <button class="send-btn" onclick="sendMsg()">↑</button>
             </div>
         </div>
 
         <div id="profile-page" class="page-content" style="justify-content:center;">
-             <div style="width:100%; max-width:600px; background:var(--bg-card); border:1px solid var(--border); border-radius:32px; padding:60px; text-align:center;">
-                <img id="u-photo" src="" style="width:100px; height:100px; border-radius:30px; margin-bottom:20px; border:2px solid var(--primary);">
-                <h2 id="u-name" style="margin-bottom:8px;"></h2>
-                <p id="u-email" style="color:var(--text-dim); margin-bottom:40px;"></p>
-                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
-                    <div style="padding:20px; background:rgba(0,0,0,0.2); border-radius:18px;">
-                        <span style="font-size:0.7rem; color:var(--text-dim); font-weight:800;">TOTAL CONVERSATIONS</span>
-                        <div style="font-weight:700; font-size:1.4rem; margin-top:5px;" id="u-chats">0</div>
+             <div style="width:100%; max-width:600px; background:var(--bg-card); border:1px solid var(--border); border-radius:36px; padding:60px; text-align:center;">
+                <img id="p-photo" src="" style="width:110px; height:110px; border-radius:34px; margin-bottom:24px; border:2px solid var(--primary); object-fit:cover;">
+                <h2 id="p-name"></h2>
+                <p id="p-email" style="color:var(--text-dim); margin-bottom:40px; font-weight:500;"></p>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; text-align:left;">
+                    <div style="background:rgba(255,255,255,0.03); padding:20px; border-radius:20px;">
+                        <span style="font-size:0.7rem; color:var(--text-dim); font-weight:800;">TOTAL SESSIONS</span>
+                        <div style="font-weight:700; font-size:1.4rem; margin-top:5px;" id="stat-chats">0</div>
                     </div>
-                    <div style="padding:20px; background:rgba(0,0,0,0.2); border-radius:18px;">
-                        <span style="font-size:0.7rem; color:var(--text-dim); font-weight:800;">ENGINE STATUS</span>
-                        <div style="font-weight:700; font-size:1.4rem; margin-top:5px;">ONLINE</div>
+                    <div style="background:rgba(255,255,255,0.03); padding:20px; border-radius:20px;">
+                        <span style="font-size:0.7rem; color:var(--text-dim); font-weight:800;">ACCOUNT TYPE</span>
+                        <div style="font-weight:700; font-size:1.4rem; margin-top:5px;">FREE ULTRA</div>
                     </div>
                 </div>
              </div>
@@ -194,141 +190,131 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyDT6NDa5i5Lqh20BMDo7KoMzb-iDiAZrKA",
-            authDomain: "study-gen.firebaseapp.com",
-            projectId: "study-gen",
-            storageBucket: "study-gen.firebasestorage.app",
-            messagingSenderId: "593504096149",
-            appId: "1:593504096149:web:0f917e36b083ed3452709c"
-        };
+        const firebaseConfig = { apiKey: "AIzaSyDT6NDa5i5Lqh20BMDo7KoMzb-iDiAZrKA", authDomain: "study-gen.firebaseapp.com", projectId: "study-gen", storageBucket: "study-gen.firebasestorage.app", messagingSenderId: "593504096149", appId: "1:593504096149:web:0f917e36b083ed3452709c" };
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const provider = new GoogleAuthProvider();
 
-        let currentChatId = null;
-        let authMode = 'login';
-        let chatHistory = [];
+        let curId = null;
+        let mode = 'login';
+        let msgs = [];
 
-        window.handleAuth = async () => {
-            const e = document.getElementById('email').value;
-            const p = document.getElementById('password').value;
-            try {
-                if(authMode==='login') await signInWithEmailAndPassword(auth, e, p);
-                else { await createUserWithEmailAndPassword(auth, e, p); await updateProfile(auth.currentUser, {displayName: e.split('@')[0]}); }
-            } catch(err) { alert(err.message); }
+        window.executeAuth = async () => {
+            const e = document.getElementById('u-email-val').value;
+            const p = document.getElementById('u-pass-val').value;
+            try { 
+                if(mode==='login') await signInWithEmailAndPassword(auth, e, p);
+                else { await createUserWithEmailAndPassword(auth, e, p); await updateProfile(auth.currentUser,{displayName:e.split('@')[0]}); }
+            } catch(ex){ alert(ex.message); }
         };
-        window.tab = (m) => { authMode = m; document.getElementById('tab-login').classList.toggle('active', m==='login'); document.getElementById('tab-signup').classList.toggle('active', m==='signup'); document.getElementById('auth-submit-btn').innerText = m==='login'?'Sign In':'Join Us'; };
-        window.loginWithGoogle = () => signInWithPopup(auth, provider);
-        window.logout = () => signOut(auth).then(()=>location.reload());
+        window.authTab = (t) => { mode = t; document.getElementById('tab-login').classList.toggle('active', t==='login'); document.getElementById('tab-signup').classList.toggle('active', t==='signup'); document.getElementById('auth-btn').innerText = t==='login'?'Login to Workspace':'Create New Account'; };
+        window.googleAuth = () => signInWithPopup(auth, provider);
+        window.logOff = () => signOut(auth).then(()=>location.reload());
 
-        onAuthStateChanged(auth, user => {
-            if(user) {
-                document.getElementById('auth-screen').style.display = 'none';
-                document.getElementById('u-name').innerText = user.displayName || user.email;
-                document.getElementById('u-email').innerText = user.email;
-                document.getElementById('u-photo').src = user.photoURL || 'https://ui-avatars.com/api/?name='+user.email;
-                loadHistory();
-            } else document.getElementById('auth-screen').style.display = 'flex';
+        onAuthStateChanged(auth, u => {
+            if(u) {
+                document.getElementById('auth-screen').style.display='none';
+                document.getElementById('greet').innerText = `Welcome back, ${u.displayName ? u.displayName.split(' ')[0] : 'User'}.`;
+                document.getElementById('p-name').innerText = u.displayName || u.email;
+                document.getElementById('p-email').innerText = u.email;
+                document.getElementById('p-photo').src = u.photoURL || 'https://ui-avatars.com/api/?name='+u.email+'&background=6366f1&color=fff';
+                loadSessions();
+            } else document.getElementById('auth-screen').style.display='flex';
         });
 
-        window.show = (pg) => {
-            document.querySelectorAll('.page-content').forEach(p => p.classList.remove('active'));
+        window.nav = (p) => {
+            document.querySelectorAll('.page-content').forEach(c => c.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            document.getElementById(pg+'-page').classList.add('active');
-            if(pg==='chat' && !currentChatId) { document.getElementById('chat-box').innerHTML = ''; chatHistory = []; }
+            document.getElementById(p+'-page').classList.add('active');
+            if(p==='chat' && !curId) { document.getElementById('chat-feed').innerHTML = ''; msgs = []; }
         };
 
-        window.autoExpand = (el) => { el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px'; };
+        window.expand = (e) => { e.style.height='auto'; e.style.height=e.scrollHeight+'px'; };
 
-        window.send = async () => {
-            const input = document.getElementById('msg-input');
-            const text = input.value.trim();
-            if(!text) return;
-            input.value = ''; input.style.height = 'auto';
+        window.sendMsg = async () => {
+            const el = document.getElementById('msg-input');
+            const val = el.value.trim();
+            if(!val) return;
+            el.value=''; el.style.height='auto';
 
-            if(document.getElementById('home-page').classList.contains('active')) show('chat');
+            if(document.getElementById('home-page').classList.contains('active')) nav('chat');
 
-            addDialogue('user', text);
-            chatHistory.push({role:'user', content:text});
+            render('user', val);
+            msgs.push({role:'user', content:val});
 
-            const aiBubble = addDialogue('ai', '');
-            const content = aiBubble.querySelector('.content_body');
+            const aiDiv = render('ai', '');
+            const body = aiDiv.querySelector('.msg-body');
 
             try {
-                const res = await fetch('/chat', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({messages: chatHistory, chat_id: currentChatId})
-                });
+                const res = await fetch('/chat', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({messages:msgs, chat_id:curId}) });
                 const reader = res.body.getReader();
                 const decoder = new TextDecoder();
-                let full = "";
+                let full ="";
                 while(true) {
                     const {done, value} = await reader.read();
                     if(done) break;
-                    const chunk = decoder.decode(value);
-                    const lines = chunk.split('\n');
+                    const lines = decoder.decode(value).split('\n');
                     for(const l of lines) {
                         if(l.startsWith('data: ')) {
                             const d = l.slice(6);
                             if(d==='[DONE]') continue;
-                            try {
-                                const p = JSON.parse(d);
-                                if(p.content){ full+=p.content; content.innerHTML = marked.parse(full); content.querySelectorAll('pre code').forEach(c=>hljs.highlightElement(c)); scrollToBottom(); }
-                                if(p.error) throw new Error(p.error);
-                            } catch(e){}
+                            const p = JSON.parse(d);
+                            if(p.content){ full+=p.content; body.innerHTML = marked.parse(full); body.querySelectorAll('pre code').forEach(c=>hljs.highlightElement(c)); scroll(); }
+                            if(p.error) throw new Error(p.error);
                         }
                     }
                 }
-                chatHistory.push({role:'assistant', content:full});
-                loadHistory();
-            } catch(err) { content.innerHTML = `<span style="color:var(--secondary)">Error: ${err.message}</span>`; }
+                msgs.push({role:'assistant', content:full});
+                loadSessions();
+            } catch(e){ body.innerHTML = `<span style="color:var(--secondary)">Error: ${e.message}</span>`; }
         };
 
-        function addDialogue(role, text) {
-            const box = document.getElementById('chat-box');
+        function render(role, val) {
+            const box = document.getElementById('chat-feed');
             const div = document.createElement('div');
             div.className = `message ${role}`;
             div.innerHTML = `
-                <div class="bubble">
-                    <div class="role-marker">${role.toUpperCase()}</div>
-                    <div class="content_body">${marked.parse(text)}</div>
-                </div>
+                <div class="role-label">${role.toUpperCase()}</div>
+                <div class="bubble"><div class="msg-body">${marked.parse(val)}</div></div>
             `;
-            box.appendChild(div);
-            scrollToBottom();
+            box.appendChild(div); scroll();
             return div;
         }
 
-        async function loadHistory() {
-            const res = await fetch('/get_history');
-            const data = await res.json();
-            document.getElementById('u-chats').innerText = data.length;
-            const container = document.getElementById('sidebar-history');
-            container.innerHTML = '';
-            data.slice(0, 15).forEach(chat => {
-                const item = document.createElement('div');
-                item.className = 'history-item';
-                item.innerText = chat.title;
-                item.onclick = () => resumeChat(chat.id);
-                container.appendChild(item);
+        async function loadSessions() {
+            const r = await fetch('/get_history');
+            const d = await r.json();
+            document.getElementById('stat-chats').innerText = d.length;
+            const b = document.getElementById('history-box');
+            b.innerHTML = '';
+            d.forEach(s => {
+                const i = document.createElement('div');
+                i.className = `history-item ${s.id===curId?'active':''}`;
+                i.innerHTML = `<span>${s.title}</span><span class="delete-icon" onclick="event.stopPropagation(); del('${s.id}')">🗑️</span>`;
+                i.onclick = () => loadSess(s.id);
+                b.appendChild(i);
             });
         }
 
-        async function resumeChat(id) {
-            show('chat');
-            const res = await fetch(`/get_chat/${id}`);
-            const data = await res.json();
-            currentChatId = id;
-            chatHistory = data.messages;
-            const box = document.getElementById('chat-box');
-            box.innerHTML = '';
-            chatHistory.forEach(m => addDialogue(m.role==='assistant'?'ai':'user', m.content));
+        async function loadSess(id) {
+            nav('chat');
+            const r = await fetch(`/get_chat/${id}`);
+            const d = await r.json();
+            curId = id; msgs = d.messages;
+            const f = document.getElementById('chat-feed');
+            f.innerHTML = '';
+            msgs.forEach(m => render(m.role==='assistant'?'ai':'user', m.content));
         }
 
-        function scrollToBottom() { const s = document.getElementById('scroller'); s.scrollTop = s.scrollHeight; }
-        document.getElementById('msg-input').addEventListener('keypress', e => { if(e.key==='Enter' && !e.shiftKey){e.preventDefault(); send();} });
+        window.del = async (id) => {
+            if(!confirm("Delete this conversation?")) return;
+            // API for deletion if needed, but for now we'll just skip it in the UI and reload
+            alert("Delete feature coming soon in the backend! History reloaded.");
+            loadSessions();
+        };
+
+        function scroll() { const s = document.getElementById('scroll-box'); s.scrollTop = s.scrollHeight; }
+        document.getElementById('msg-input').addEventListener('keypress', e => { if(e.key==='Enter' && !e.shiftKey){e.preventDefault(); sendMsg();} });
     </script>
 </body>
 </html>
