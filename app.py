@@ -53,6 +53,13 @@ client = openai.OpenAI(
 
 app = Flask(__name__)
 
+@app.after_request
+def add_header(response):
+    # Fix for Cross-Origin-Opener-Policy blocking Firebase Auth popups
+    response.headers['Cross-Origin-Opener-Policy'] = 'same-origin-allow-popups'
+    return response
+
+
 # ---- Utils (Firestore Migration) ----
 
 def load_history():
@@ -130,6 +137,9 @@ def chat():
         return jsonify({"response": ai_response, "chat_id": new_chat_id})
     except Exception as e:
         print(f"CHAT ROUTE CRASH: {str(e)}")
+        # Print the traceback for easier debugging if possible
+        import traceback
+        traceback.print_exc()
         return jsonify({"error": f"Internal Error: {str(e)}"}), 500
 
 @app.route('/get_history')

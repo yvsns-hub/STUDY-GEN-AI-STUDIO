@@ -159,7 +159,12 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ messages: chatHistory, chat_id: currentChatId })
                 });
+                
                 const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || "Server returned an error");
+                }
                 
                 currentChatId = data.chat_id;
                 const aiResponse = data.response;
@@ -169,7 +174,8 @@
                 contentDiv.querySelectorAll('pre code').forEach(el => hljs.highlightElement(el));
                 loadHistory();
             } catch (e) {
-                contentDiv.innerText = "Error connecting to AI.";
+                console.error("Chat Error:", e);
+                contentDiv.innerHTML = `<span style="color:#ff5c5c">Error: ${e.message}</span>`;
             } finally {
                 chatWindow.scrollTo(0, chatWindow.scrollHeight);
             }
