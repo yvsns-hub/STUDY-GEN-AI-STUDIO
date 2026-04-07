@@ -165,6 +165,17 @@ def get_chat(chat_id):
 def get_history():
     return jsonify(load_history())
 
+@app.route('/delete_chat/<chat_id>', methods=['DELETE'])
+def delete_chat(chat_id):
+    """Permanently remove a chat from Firestore."""
+    if not db:
+        return jsonify({"error": "Database not connected"}), 500
+    try:
+        db.collection(CHATS_COLLECTION).document(chat_id).delete()
+        return jsonify({"status": "success", "message": "Chat deleted"})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
 
