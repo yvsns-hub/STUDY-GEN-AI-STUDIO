@@ -1,6 +1,6 @@
 import os
 import json
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, Response
 import openai
 from dotenv import load_dotenv
 import firebase_admin
@@ -123,24 +123,43 @@ def chat():
     if not OPENROUTER_API_KEY:
         return jsonify({"error": "AI API Key missing on server"}), 500
 
+    def generate():
+        try:
+            # We want to enable streaming for that 'line-by-line' effect
+            response = client.chat.completions.create(
+                model=MODEL_NAME,
+                messages=[{"role": "system", "content": "You are a professional assistant. Use clear markdown and provide helpful, concise responses."}] + messages,
+                stream=True
+            )
+            
+            full_content = ""
+            for chunk in response:
+                if chunk.choices[0].delta.content:
+                    content = chunk.choices[0].delta.content
+                    full_content += content
+                    yield f"data: {json.dumps({'content': content})}\n\n"
+            
+            # After stream finishes, save to history in background (don't block the UI)
+            messages.append({"role": "assistant", "content": full_content})
+            save_chat(messages, chat_id)
+            yield "data: [DONE]\n\n"
+            
+        except Exception as e:
+            yield f"data: {json.dumps({'error': str(e)})}\n\n"
+
+    return Response(generate(), mimetype='text/event-stream')
+
+@app.route('/get_chat/<chat_id>')
+def get_chat(chat_id):
+    """Retrieve highly specific chat history."""
+    if not db: return jsonify({"error": "No DB"}), 500
     try:
-        response = client.chat.completions.create(
-            model=MODEL_NAME,
-            messages=[{"role": "system", "content": "You are a professional assistant."}] + messages
-        )
-        ai_response = response.choices[0].message.content
-        messages.append({"role": "assistant", "content": ai_response})
-        
-        # Save/Update history in Firestore
-        new_chat_id = save_chat(messages, chat_id)
-        
-        return jsonify({"response": ai_response, "chat_id": new_chat_id})
+        doc = db.collection(CHATS_COLLECTION).document(chat_id).get()
+        if doc.exists:
+            return jsonify(doc.to_dict())
+        return jsonify({"error": "Not found"}), 404
     except Exception as e:
-        print(f"CHAT ROUTE CRASH: {str(e)}")
-        # Print the traceback for easier debugging if possible
-        import traceback
-        traceback.print_exc()
-        return jsonify({"error": f"Internal Error: {str(e)}"}), 500
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/get_history')
 def get_history():
